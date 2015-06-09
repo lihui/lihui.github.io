@@ -61,7 +61,7 @@ $P(y=1|x)=\sigma \lbrace\sum \limits_{i=0}^{K}\lambda_i x_i \rbrace$,
 $x_0==1$
 
 
-在K>1的情况下，假设前K个$$ x_i $$的特征值已经给定，其概率为
+在K>1的情况下，假设前K个$ x_i $的特征值已经给定，其概率为
 $p _ {k}$ ,对于第K+1个输入特征$x_ {k+1}$,若值为0，即特征不满足，则$p _ {k+1=p_k}$,概率值不变。当特征满足的时候，$p _ {k+1}$与$p _ k$相比，$\sigma$函数中的线性和部分，仅仅是增加了$\lambda _ {k+1}$，其意义是当我们观察到样例符合某种特征时，为正例的概率在原有的基础之上进行一定调整。若其他特征均为0，那么$\sigma(\lambda_ {k+1})$就等于正例的概率，换句话是说，满足特征$k+1$的样本集合$S_ {k+1}$中减去其他特征所定义的集合,设为
 $ \hat{S} _ {k+1}$,平均有$ |\hat{S} _ {k+1}| \sigma(\lambda _ {k+1})$个正例。
 <div align='center'><img  src='/media/class-logistic.png' alt=""><br><label>图1：特征分类</label></div><br/>

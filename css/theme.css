@@ -78,3 +78,10 @@ body {
 .author a {
     color: #ee4444;
 }
+
+code.has-jax {
+            font: inherit;
+            font-size: 100%;
+            background: inherit;
+            border: inherit;
+}
