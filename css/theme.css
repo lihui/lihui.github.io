@@ -1,0 +1,80 @@
+body {
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+
+.copyright {
+    color: #ffffff;
+}
+
+.footer {
+    text-align: center;
+}
+
+.footer a {
+    color: #ee4444;
+}
+
+.sidebar h1 {
+    color: #ee4444;
+    font-size: 1.3em;
+}
+
+.sidebar a {
+    color: #428bca;
+}
+
+.sidebar li {
+    margin-top: .7em;
+    line-height: 1em;
+}
+
+.sidebar a:hover {
+    color: #3071a9;
+}
+
+.container-left {
+    margin: 0;
+}
+
+.article {
+    text-align: justify;
+    text-justify: inter-ideograph;
+    -ms-text-justify: inter-ideograph;
+    font-family: 宋体,serif;
+    font-size: 1.1em;
+}
+
+.article p {
+    text-indent:  2em;
+
+}
+
+.article h2 {
+    font-weight:bold
+    font-size: 1.3em;
+
+}
+
+.article h3 {
+        font-weight:bold
+    font-size: 1.2em;
+}
+
+.article h4 {
+    font-weight:bold
+    font-size: 1.1em;
+}
+
+.well h1 {
+    color: #ee4444;
+    font-size: 1.3em;
+}
+
+.author {
+    color: #ee4444;
+}
+
+.author a {
+    color: #ee4444;
+}
