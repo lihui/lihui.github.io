@@ -70,7 +70,12 @@ body {
     font-size: 1.0em;
     font-weight: bold;
 }
-
+.article .well{
+        background: white;
+}
+.well{
+    background: #f9f9f9;
+}
 .well h1 {
     color: gray;
     font-size: 1.3em;
