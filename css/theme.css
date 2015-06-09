@@ -16,7 +16,7 @@ body {
 }
 
 .sidebar h1 {
-    color: #ee4444;
+    color: gray;
     font-size: 1.3em;
 }
 
@@ -67,7 +67,7 @@ body {
 }
 
 .well h1 {
-    color: #ee4444;
+    color: gray;
     font-size: 1.3em;
 }
 
@@ -84,4 +84,10 @@ code.has-jax {
             font-size: 100%;
             background: inherit;
             border: inherit;
+}
+.contact{
+    width: 30em;
+    height: 6em;
+    background-image: url(/media/about.png);
+    background-repeat: no-repeat;
 }
