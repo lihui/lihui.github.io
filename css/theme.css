@@ -45,7 +45,7 @@ body {
     font-size: 1.1em;
 }
 
-h1,h2{
+.article h1,h2{
     text-align: center;
 }
 .article p {
