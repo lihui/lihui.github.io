@@ -1,7 +1,7 @@
 # Jekyll configuration
 
-name: 灵儿归乡处 
-description: 给时光以生命, 给存在以觉知 
+name: lihui blog 
+description: desc
 
 # url is currently only used only for the RSS feed in feed.xml
 url: http://lihui.github.io
