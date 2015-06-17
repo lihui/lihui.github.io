@@ -1,6 +1,7 @@
 ---
 layout: post
 title: 逻辑斯蒂回归的特征工程
+author: 灵元
 ---
 
 
