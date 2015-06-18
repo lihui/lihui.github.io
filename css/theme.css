@@ -42,7 +42,7 @@ body {
     text-justify: inter-ideograph;
     -ms-text-justify: inter-ideograph;
     font-family: 宋体, serif;
-    font-size: 1.1em;
+    font-size: 1.2em;
     line-height: 1.5em;
 }
 
@@ -57,18 +57,18 @@ body {
     text-align: center;
 }
 .article h2, .h2 {
-    font-size: 1.2em;
+    font-size: 1.3em;
     font-weight: bold;
 }
 
 .article h3, .h3 {
-    font-size: 1.1em;
+    font-size: 1.2em;
     font-weight: bold;
 
 }
 
 .article h4, .h4 {
-    font-size: 1.0em;
+    font-size: 1.1em;
     font-weight: bold;
 }
 .article .well{
