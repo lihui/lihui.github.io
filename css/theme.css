@@ -43,6 +43,7 @@ body {
     -ms-text-justify: inter-ideograph;
     font-family: 宋体, serif;
     font-size: 1.1em;
+    line-height: 1.5em;
 }
 
 .article h1,h2{
