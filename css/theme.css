@@ -37,6 +37,7 @@ body {
     margin: 0;
 }
 
+
 .article {
     text-align: justify;
     text-justify: inter-ideograph;
@@ -46,9 +47,17 @@ body {
     line-height: 1.5em;
 }
 
+.article pre{
+
+    font-family: 宋体, serif;
+    font-size: 0.95em;
+    line-height: 1.5em;
+}
+
 .article h1,h2{
     text-align: center;
 }
+
 .article p {
     text-indent: 2em;
 
@@ -94,7 +103,7 @@ code.has-jax {
     font: inherit;
     font-size: 100%;
     background: inherit;
-    border: inherit;
+   // border: inherit;
 }
 
 .contact {
