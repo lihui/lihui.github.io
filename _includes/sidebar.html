@@ -1,4 +1,5 @@
 <div class="sidebar well">
+ <!--img src="media/i.jpg" /-->
 {{ site.description }}
 </div>
 
@@ -11,6 +12,13 @@
     </ul>
 </div>
 
+{%if site.categories!=empty%}
+<div class="sidebar well">
+{% include category-list.html %}
+</div>
+{%endif%}
+<!--
 <div class="sidebar well">
 {% include links-list.html %}
 </div>
+-->
