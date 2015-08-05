@@ -1,0 +1,114 @@
+body {
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+
+.copyright {
+    color: #ffffff;
+}
+
+.footer {
+    text-align: center;
+}
+
+.footer a {
+    color: #ee4444;
+}
+
+.sidebar h1 {
+    color: gray;
+    font-size: 1.3em;
+}
+
+.sidebar a {
+    color: #428bca;
+}
+
+.sidebar li {
+    margin-top: .7em;
+    line-height: 1em;
+}
+
+.sidebar a:hover {
+    color: #3071a9;
+}
+
+.container-left {
+    margin: 0;
+}
+
+
+.article {
+    text-align: justify;
+    text-justify: inter-ideograph;
+    -ms-text-justify: inter-ideograph;
+    font-family: 宋体, serif;
+    font-size: 1.2em;
+    line-height: 1.5em;
+}
+
+.article pre{
+
+    font-family: 宋体, serif;
+    font-size: 0.95em;
+    line-height: 1.5em;
+}
+
+.article h1,h2{
+    text-align: center;
+}
+
+.article p {
+    text-indent: 2em;
+
+}
+.article .date{
+    text-align: center;
+}
+.article h2, .h2 {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.article h3, .h3 {
+    font-size: 1.2em;
+    font-weight: bold;
+
+}
+
+.article h4, .h4 {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+.article .well{
+        background: white;
+}
+.well{
+    background: #f9f9f9;
+}
+.well h1 {
+    color: gray;
+    font-size: 1.3em;
+}
+
+.author {
+    color: #ee4444;
+}
+
+.author a {
+    color: #ee4444;
+}
+ 
+code.has-jax {
+    font: inherit;
+    font-size: 100%;
+    background: inherit;
+   // border: inherit;
+}
+
+.contact {
+    width: 30em;
+    height: 6em;
+    background-image: url(/media/about.png);
+    background-repeat: no-repeat;
+}

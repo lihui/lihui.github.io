@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>灵元</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/theme.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/highlight/styles/default.css">
+    <script src="/highlight/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            extensions: ["tex2jax.js"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+            tex2jax: {
+              inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+              displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+              processEscapes: true
+            },
+            "HTML-CSS": { availableFonts: ["TeX"] }
+          });
+
+    </script>
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script type='text/javascript'>
+        MathJax.Hub.Config({
+            tex2jax: {
+                skipTags: ['script', 'noscript', 'style', 'textarea' ]
+            }
+        });
+        MathJax.Hub.Queue(function () {
+            var all = MathJax.Hub.getAllJax(), i;
+            for (i = 0; i < all.length; i += 1) {
+                all[i].SourceElement().parentNode.className += ' has-jax';
+            }
+        });
+    </script>
+
+
+
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">灵元</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="/">首页</a></li>
+                    <li class="active visible-xs-block"><a href="/links.html">链接</a></li>
+                    <li class="active"><a href="/archive.html">归档</a></li>
+                    <li class="active"><a href="/about.html">关于</a></li>
+                    <!--li class="active"><a href="/feed.xml">RSS</a></li-->
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container container-left">
+    <div class="row">
+        <div class="col-md-3 hidden-xs">
+            <div class="sidebar well">
+ <!--img src="media/i.jpg" /-->
+给时光以生命，给存在以觉知
+</div>
+
+<div class="sidebar well">
+    <h1>近期文章</h1>
+    <ul>
+        
+          <li><a href="/2015/07/kafka">Kafka:一种支持日志处理的分布式消息系统（译）</a></li>
+        
+          <li><a href="/2015/06/logistic">Logistic回归的特征工程</a></li>
+        
+    </ul>
+</div>
+
+
+<!--
+<div class="sidebar well">
+<h1>链接</h1>
+<ul>
+  <li><a href="#"></a></li>
+</ul>
+
+</div>
+-->
+        </div>
+        <div class="col-md-9">
+          <div class="article">
+            <div class="well">
+                <h1><a href="/2015/07/kafka">Kafka:一种支持日志处理的分布式消息系统（译）</a></h1>
+                <div class="date">2015.07.08<br>灵元 (译)</div>
+            
+            <div class="post-content">
+            <h2 id="摘要">摘要</h2>
+
+<pre><code>    日志处理正成为消费型互联网公司的数据处理管道中的关键组件，我们在此介绍Kafka，这是一个我们开发的分布式消息系统，能低延时地收集和分发海量日志数据。我们的系统结合了来自于已有的日志聚合器和消息系统的思想，同时适合在线和离线的消息消费。我们采取了非同寻常然但确有实效的设计决策使得系统高效并具备可伸缩性。我们的实验结果显示，与两款流行的消息系统相比，Kafka具有超凡性能。我们已经在生产环境中使用Kafka有一段时间了，它每天处理着数百GB的新数据。</code></pre>
+
+<h2 id="1-引言">1 引言</h2>
+
+<p>在任何规模的互联网公司中都会产生大量的日志数据。这些数据典型地包括（1）用户活动事件，如登录，页面查看，点击，点击“like”（+1），分享，评论以及查询搜索；（2）操作指标，如服务调用栈，调用延时，错误以及系统性能指标如每台机器上的CPU，内存，网络，磁盘利用率。日志数据作为分析组件用来跟踪用户、系统利用率和其他指标已经有很长历史了。然而最近互联网应用的趋势是将活动数据作为生产数据处理管道的一部分直接用于网页中的某些功能特性。这些使用场景包括（1）搜索相关排序（2）推荐，通过项目（商品）流行度和活动流中的共现性来实现（3）广告定向和报告（4）安全，避免滥用行为如垃圾邮件和未经授权的数据抓取（5）新闻聚合，聚合用户状态更新或者动作，让此用户的朋友或者连接器能够订阅。</p>
+
+<p>这种线上实时日志数据的使用对数据系统提出了新的挑战，因为它的数据规模相对于“真实”的业务数据有数量级的提升。比如，搜索，推荐，和广告通常要求单个计算点击率，这样产生的日志不但要记录对每一个用户点击项，还要把每一个页面中几十个未被点击的项也记录下来。中国移动收集了5-8TB的手机拨打记录，facebook也收集了近乎6TB的不同用户的活动事件。</p>
+
+<p>许多早期的处理类似数据的系统依赖于物理抓取生产服务器的日志文件进行分析。在最近几年，出现了几种专门的分布式日志聚合器，包括Facebook的 Scribe，Yahoo的Data Highway，和Cloudera的Flume。这些系统主要被设计为收集和载入日志数据到数据仓库或者Hadoop中以便离线使用。在LinkedIn（一种社交网络站点），我们发现除了传统的离线分析，还需要支持绝大多数如上所述的实时应用，要求延迟不超过几秒钟。</p>
+
+<p>我们为日志处理构造了一个名为Kafka的新的消息系统，该系统结合了传统日志聚合器和消息系统的优点。在一方面，Kafka是一个分布式的可伸缩的系统，提供很高的吞吐量。在另外一方面，Kafka提供了一个类似于消息系统的API，允许应用实时地消费日志事件。Kafka已经开源并且成功地运用于LinkedIn的生产系统超过了6个月。它极大地简化了我们的基础设施。因为我们用一个软件可统一为各种类型的日志数据进行在线和离线处理。本论文组织如下：我们在第二章回顾传统的消息系统和日志聚合器；第三章描述Kafka的架构机器关键设计原则；第四章描述Kafka在LinkedIn的部署；第五章给出性能结果；最后在第六章讨论未来的工作以及给出总结。</p>
+
+<h2 id="2-相关工作">2 相关工作</h2>
+
+<p>传统企业消息系统已经存在了很长一段时间了，它们作为事件总线为异步数据流处理起了关键作用。然而，有一些原因使得它们不适合日志处理。首先，日志处理和企业消息系统在需求特性上不匹配。他们往往专注于提供一套丰富的消息传送保证机制。比如，IBM Websphere MQ提供了事务支持，允许应用原子地插入消息到多个队列中。JMS规范允许每一个消息在消费后都进行确认，并且可以是无序的。这些传送保证机制对日志收集而言通常是没有必要的。例如，偶尔丢失了一些页面查看事件并没有什么大不了的。这些非必要的特性增加了API和系统底层实现的复杂度。其次，很多系统并不十分关注于吞吐量并以此为主要设计约束。比如JMS没有API使得生产者可以显式地将消息批量打包到一个请求中去。这意味着每一个消息传送都会导致一个完整的TCP/IP来回，这种方式不能满足我们这个领域中的吞吐量的需要。第三，这些系统在分布式支持上比较弱。在多台机器上进行消息分区和存储并不容易。最后，许多消息系统假设消息被立即（或者接近立即）消费，所以未被消费的消息队列总是相当小的。如果消息允许被归集起来，那么它们的性能就会有严重的下降，这种场景在离线消息消费中会出现，比如数据仓库应用是定期执行大量数据导入，而不是连续消费消息。</p>
+
+<p>在过去的几年里，出现了一些专门的日志聚合器。Facebook使用一个叫Scribe的系统，每一个前端机器可以通过socket发送日志数据到一个Scribe机器集，每一个Scibe聚合日志条目并且定期导入到HDFS或者NFS设备。Yahoo的data highway项目有着类似的流程。一群机器从客户端集合事件然后滚动到“minute”文件，这些文件再被加入到HDFS。flume是一个由Cloudera开发的相对新的日志聚合器，它支持可扩展的“pipes”和“sinks”，使日志流处理过程非常灵活，它还有更紧密的分布式支持。然而绝大多数这些系统是为消费离线日志数据而设计的，并且常常不必要地暴露了实现细节给消费者（例如：“minute”文件）。另外，它们大多数使用“push”模型，broker（译注：代理，指消息系统）转发消息给消费者。在LinkIn，我们发现“pull”模型更适合我们的应用，因为这样每一个消费者能以它能支持的最大的速率获取消息，避免了它因处理能力不足而产生的消息洪泛现象。“pull”模型也使得消费者能够容易地回退，以重新读取以前某个时间的消息，我们将在第2.3节讨论这种功能的好处。</p>
+
+<p>最近，Yahoo! 研究院开发了一个新型的名为HedWig的分布式pub/sub系统。HedWig具有高度可伸缩性和可用性，并且提供了强持久化保证。然而，他主要目的是用来存储数据仓库的提交日志（commit log)。</p>
+
+<h2 id="3-kafka架构和设计原则">3 Kafka架构和设计原则</h2>
+
+<p>因为现有系统的限制，我们开发了一个新的基于消息的日志聚合系统Kafka。我们首先介绍Kafka中的基本概念。一种特殊类型的消息流定义为topic，生产者可以发布消息到一个topic。发布的消息然后存储在一群称为broker的服务器上。一个消费者可以订阅一个或者多个topic，并且通过拉的方式从broker消费数据。</p>
+
+<p>在概念上消息很简单，我们也努力使得Kafka API也同样简单。我们将不给出API细节，而是通过一些代码样例来展示API是如何使用的。生产者的样例代码在下面给出。一个消息仅仅定义为包含字节的载荷，用户可以选择他所喜好得序列化方法来编码消息。为了效率，生产者可以在一个发布请求中发送一组消息。
+<pre><code>Sample producer code：
+producer=new Producer(...);
+message=new Message(&quot;test message str&quot;.getBytes());
+set=new MessageSet(message);
+producer.send(&quot;topic1&quot;,set);</code></pre>
+为了订阅一个topic，消费者首先为这个topic创建一个或者多个消息流。消息发布到那个topic最终将分发到这些子流中。关于Kafka分发消息得细节将在3.2节叙述。每一个消息流在产生的连续流上提供了一个迭代器接口。然后消费者迭代流中的每一个消息并且处理消息中得载荷。与传统的迭代器不同，消息流迭代器从不结束。如果当前没有更多的消息可供消费，迭代器将会阻塞知道新消息发布到该topic上。我们既支持point-to-point传送模型，也支持publish/subscribe模型。point-to-point传送模型中多个消费者一起消费topic中消息的一个拷贝（比如一个消息随机分发给其中一个消费者）。publish/subscribe模型中每个消费者能够获得自己的一个独立的拷贝。</p>
+
+<pre><code>Sample consumer code:
+streams[]=Consumer.createMessageStream("topic1",1);
+for(message:stream[0]){
+    bytes=message.payload();
+    //do something with the bytes
+}</code></pre>
+    
+
+<p>Kafka的整体架构展示在图1中。由于Kafka天然是分布式的，kafka集群典型地由多个broker组成。为了负载均衡，一个topic分割成多个分区，每一个broker存储一个或者多个这样的分区。多个生产者和消费者可以在任意时间发布和读取消息。在3.1节我们将描述单个分区在broker上的布局，以及一些为了高效访问分区而采纳的设计决策。在3.2节我们将描述生产者和消费者在分布式环境下与多个broker如何交互的。在3.3节我们讨论Kafka的传送保证机制。
+<div align="center"><img style="width:80%" src="/media/kafka-arch.png"></img></div></p>
+
+<h3 id="3.1-单分区中的效率">3.1 单分区中的效率</h3>
+
+<p>我们在Kafka中使用了一些决策来提高系统性能。</p>
+
+<p><strong>简单存储</strong>：Kafka有一个非常简单得存储布局。每个topic的分区对于一个逻辑日志。物理地，一个日志实现为一组大小近似的分段文件（如1GB）。每一次生产者发布一个消息到一个分区的时候，broker简单地讲这个消息追加到最后一个分段文件里。为了获得更好的性能，我们仅仅在经过一定数目的消息之后或者一段时间之后才将分段文件flush（刷新）到磁盘中，这些数目和时间是可配置的。一个消息仅当它flush到磁盘后才能暴露给消费者。</p>
+
+<p>与典型的消息系统不同，一个消息存储在Kafka中并没有一个显式的消息id。相反，每一个消息通过它在日志中的逻辑偏置(logical offset)来寻址。这种方法避免了因维护多余的、寻道密集的、随机访问的索引结构而产生的开销，否则我们需要这种索引结构将消息id映射到消息在日志文件中的位置。需要注意的是我们的消息id是增量的但并不连续。为了计算下一个消息id，我们必须将当前消息id加上当前消息的长度。从现在开始，我们将等价使用消息id和偏置。</p>
+
+<p>一个消费者从特定的分区中总是顺序地消费信息。如果消费者确认一个特定的消息偏置，这将隐含表明该消费者已经收到了此offset以前的在本分区中的所有消息。在底层实现中，消费者发送一个异步pull请求到broker获取一个此应用要消费的准备就绪的数据。每一个pull请求包含了要消费的起始消息的offset和能够接受的字节大小。每个broker在内存中持有一个offset的有序列表，该列表中的offset是每个分段文件中第一个消息的offset（逻辑偏置）。broker通过搜索有序列表来定位所请求的消息在那个分段文件中，然后将数据发送会消费者。消费者接受到消息后，它计算下一个要消费的消息的offset，将其用在下一个pull请求中。Kafka的日志布局和内存中的索引展示在图2中。每个框内显示了消息的offset。
+<div align="center"><img style="width:80%" src="/media/kafka-segmentfile.png"></img></div></p>
+
+<p><strong>高效传输</strong>: 我们非常关心Kafka中数据的传进传出。前文我们提到生产者可以在一个发送请求中提交一组消息。尽管终端消费API一次迭代一个消息，但在底层实现中，每一个pull请求也会读取多个消息直到抵达了某个字节数量的上限，典型地，这个数值是几百个KB。</p>
+
+<p>另外一个非同寻常的抉择是我们避免显式地在kafka中缓存消息。相反，我们依赖于底层的文件系统页缓存机制(page cache)。这种方式的主要好处是可以避免双重缓存——消息仅仅缓存在页缓存中。另外一个好处是即使broker进程重启了，缓存还能保持“热度”。既然Kafka完全不在进程中缓存消息，它在内存垃圾回收上开销就很小，这使得基于虚拟机的语言也能够高效实现这个系统。最后，因为生产者和消费者都顺序地访问分段文件，消费者的访问常常紧接着生产者，正常的启发式操作系统缓存机制将会非常有效(特别是write-through和read-ahead缓存)。我们发现生产者和消费者在数据集大到若干TB的时候，都一致地具有线性性能。</p>
+
+<p>另外我们还为消费者优化了网络访问性能。Kafka是一个多订阅的系统，一个消息可以被不同的消费者应用消费多次。从本地文件发送字节到远程socket一个典型的方案包含如下步骤（1）从存储媒介上读取数据到OS的页缓存中（2）从页缓存拷贝数据到应用缓冲区(buffer)(3)从应用缓冲区拷贝到另一个内核缓冲区（4）从内核缓冲区发送到socket。这包含4个数据拷贝和2个系统调用。在Linux和其他Unix操作系统中，存在一个sendfile API可以直接将字节从文件通道传送到socket通道。这典型地避免了第（2)(3)步中的2个拷贝和1个系统调用。Kafka利用sendfile API高效地将字节数据从日志分段文件中传输到消费者。</p>
+
+<p><strong>无状态broker</strong>: 与大多数消息系统不同，在Kafka中关于每个消费者消费了多少的信息并不保存在broker中，而是由消费者自行保存。这种设计为broker降低了很多开销和系统复杂性。然而，这使得删除消息变得微妙起来，因为broker不知道是否所有的订阅者都消费了这个消息。Kafka通过使用一个简单的基于时间的SLA保留策略来解决这个问题。如果在broker中保留超过一段时间（如7天），一个消息将被自动删除。这个方案在实践中工作良好。因为包括离线消费者在内的大多数消费者，都将在一天、一个小时乃至于实时完成消息消费。又由于Kafka的性能在大数据集上并不会降低，这个事实允许我们进一步延长消息保留的时间，从而更可靠地解决了消息删除的问题。</p>
+
+<p>这种设计（指无状态）有一个额外的重要好处，一个消费者可以自由地回退到老的消息offset从而可以重新消费数据。这违反了关于队列的一般契约，但被证明了对于很多消费者而言是一个基本的特性需要。例如，当消费者应用逻辑中有一个错误时，在错误修复后，应用可以重放某些消息。这在ETL工具将数据载入到数据仓库或者hadoop系统中时特别重要。再如另外一个例子，消费过的数据可能仅定期flush到持久存储中（如，全文索引），如果消费者崩溃了，那么未flush的数据就会丢失。在这种情况下，当它重启后，消费者可以检查未flush的消息的最小的offset，然后从该offset开始重新消费消息。值得指出的是，在pull模型中支持消费者回退要比push模型中容易得多。</p>
+
+<h3 id="3.2-分布式协调">3.2 分布式协调</h3>
+
+<p>现在我们描述生产者和消费者在分布式环境下如何工作。每一个生产者发送消息到一个分区中，这个分区或者是随机选择的，或者是用分区函数和分区键值所确定的。而下面我们将关注消费者如何与broker进行交互。</p>
+
+<p>Kafka有一个叫&quot;consumer groups&quot;的东西，每个consumer group由一个或者多个消费者组成，它们一起消费所订阅的主题(topic)集合。也就是说，每一个消息仅仅送达到这个consumer group中的一个消费者。不同的consumer group独立地消费所有的所订阅的消息，与其他的consumer group完全不相干。consumer group中的消费者可能在不同的进程或者不同的机器上运行。我们的目标是将存储在各broker中的消息均匀地分发给消费者，而无需引入太多的协调开销。</p>
+
+<p>我们第一个抉择是使得一个主题的分区是最小的并行单元。这意味着在任何时候，一个分区的全部信息只被一个每个consumer group的一个消费者所消费。我们曾允许多个消费者并发地消费一个分区，他们因而必须就谁消费了那条信息这样的问题进行协调，这就必须引入锁和状态管理的开销。相反，现今我们的设计中消费者进程仅需在执行负载均衡时进行协调，而这个操作并不经常发生。为了让负载真正均衡，我们要求topic中的分区数量要远大于consumer group中的消费者的数目。这我们可以通过简单地对topic划分很多分区而实现。</p>
+
+<p>我们所作的第二个抉择是不设置中心主节点，而以去中心化的方式让消费者自己进行协调。添加一个主节点会导致系统复杂，因为我们还得关心主节点失效的问题。为了进行协调，我们采用了高可用的一致性服务Zookeeper。Zookeeper，有一个非常简单的类文件系统的API。藉此可以创建路径，设置路径的值，读取路径的值，删除路径，列出路径下的子路径等。它还可以做一些更有趣的事情，例如：(a)可以在路径上注册观察器，当子路径或者该路径上的值发生改变的时候获得通知；(b)一个路径可以创建为临时的(与持久路径相反),这意味着如果创建这个路径的客户端离线了，该路径就会被自动删除；(c)Zookeeper将其数据复制在多台服务器上，这使得数据具备高可靠性和高可用性。</p>
+
+<p>Kafka使用Zookeeper完成如下任务：(1)检测broker和consumer的加入和移除，(2)当上述事件发生时，触发负载均衡的过程，以及(3)维护消费关系并且跟踪每个分区所消费过的offset。特别地，当每一个broker和consumer启动时，它将其信息注册到Zookeeper。broker注册表包括broker的主机名、端口号，以及其所存储的topic和分区信息。consumer注册表包含其所属于的consumer group，以及它所订阅的topic集合。每个consumer group的从属注册表（描述consumer和consumer group从属关系）和offset注册表息也存储在Zookeeper中。每个订阅的分区在从属注册表中均有一条路径，路径上的值是当前正在消费该分区的consumer 标示符。offset注册表存有每一条订阅分区的最近被消费的消息位置偏移（offset）。</p>
+
+<p>broker注册表、consumer注册表、从属注册表、offset注册表在Zookeeper中所创建的诸路径是易失的。如果一个broker失效了，在其之上的所有分区信息都自动从broker注册表中移除。一个consumer的失效将导致它在consumer注册表中的条目，以及从属注册表中它所拥有的所有分区都被删除。每个consumer在broker注册表和consumer注册表都注册了一个Zookeeper观察器，一旦任何broker或者consumer group有相关的变更，它都将得到通知。</p>
+
+<p>在consumer启动时，或者当consumer得到一个关于broker/consumer变更的通知，consumer将会发起一个负载重平衡过程，以确定它所应消费那些新分区。该过程在算法1中描述。
+<pre><code>算法1：负载均衡过程
+输入：consumer $C_i$ ，consumer group $G$
+[foreach]: 对$C_i$所订阅的每一个topic $T${
+    从从属注册表中删除$C_i$所拥有的分区
+    从Zookeeper中读取broker、consumer注册表
+    计算$P_T$=在topic $T$下所有broker的分区总集
+    计算$C_T$=G中所有订阅topic $T$的consumer
+    对$P_T$,$C_T$排序
+    设$j$是$C_i$在$C_T$中的索引,且$N=\frac{|P_T|}{|C_T|}$
+    将序号从$j*N$到$(j+1)*N-1$的分区分配给consumer $C_i$
+    [foreach]: 对每一个被分配的分区$p$ {
+        在从属注册表中将$p$的拥有者设置为$C_i$
+        设$O_p$=分区$p$存储在offset注册表中的offset
+        启用一个线程从offset(偏移)$O_p$开始在分区$p$中拉取数据
+    }
+}</code></pre>
+通过从Zookeeper中读取broker注册表和consumer注册表，consumer首先计算为每个订阅主题$T$计算其分区集$(P_T)$，以及$G$中订阅主题$T$的consumer集合$C_T$。然后根据范围将分区集合$P_T$切分为段，将每一段分别分配给$C_T$中的consumer。对于consumer所分配到的每一个分区，consumer都在从属注册表中把自己记录为此分区的新拥有者。最后，consumer开启一个线程从每一个所拥有的分区中拉取数据，起始位置是记录在offset注册表中的偏移（offset）。当消息从一个分区中拉取出来后，consumer在offset注册表中定期更新上次消费过的消息的offset。</p>
+
+<p>当某个consumer group中有多个consumer时，broker或者consumer发生变动时每一个consumer都会得到通知。然而，各consumer得到通知的时间可能会有些许差异。所以一个consumer有可能会试图获取另外一个consumer所拥有的分区。当此情况发生时，第一个consumer将直接释放他所拥有的所有分区，等待一会儿然后重试负载均衡过程。在实际中，负载均衡过程通常会在几次尝试后就稳定下来。</p>
+
+<p>当一个新consumer group创建时，offset注册表中没有offset信息。在这种情况下，通过使用我们所提供的broker的API，consumer可从所订阅分区的最小或者最大的offset开始获取消息，具体依配置而定。</p>
+
+<h3 id="3.3-传送保证">3.3 传送保证</h3>
+
+<p>通常，Kafka仅保证“至少一次”的消息传送。“确保一次”的消息传送一般要求两阶段提交协议，这在我们的应用中不是必须的。绝大多数时候，消息能够“确保一次”传送给每个consumer group。然而当consumer 进程崩溃没有正常关闭时，接管失效consumer所拥有的那些分区的consumer进程可能会获取到一些重复的消息，这些消息是上次失效consumer成功提交到ZooKeeper的offset之后的，处理过但未及提交的那些消息。如果应用对这种重复不能接受，那么它必须自行添加重复删除逻辑，这可以使用consumer接收到的offset信息，或者消息中的唯一键值来实现。这种方案通常比两阶段提交协议更加经济有效。</p>
+
+<p>Kafka保证单个分区内的消息传送的有序性。然而来自于不同分区的消息之间不能保证先后顺序。</p>
+
+<p>为了避免消息损坏，Kafka在日志中为每条消息存储一个CRC校验码。如果在broker中又任何I/O错误，Kafka运行一个恢复进程删除与CRC校验码不一致的消息。在消息级加入CRC也使得我们可以在消息产生和消费后检测网络错误。</p>
+
+<p>如果某个broker下线了，任何存储在其上的还未被消费的消息都将无法访问。如果某broker上的存储系统永久损坏了，任何未被消费的消息都会永远丢失。在未来（译注：最新版本已经实现）我们计划在Kafka中添加内置的备份机制，为每条消息在多个broker上提供存储冗余。</p>
+
+<h2 id="4-kafka在linkedin的应用">4 Kafka在LinkedIn的应用</h2>
+
+<p>在本节中，我们描述Kafka是如何在LinkedIn使用的。图3展示了我们部署方案得一个简化版本。我们为每一个运行面向用户的服务的数据中心配备一个Kafka集群。前端服务产生多种日志数据，批量发布到本地Kafka broker。我们依赖硬件负载均衡将发布请求匀布给该组Kafka broker。Kafka的在线consumer也运行在同一个数据中心。
+<div align="center"><img style="width:80%" src="/media/kafka-deployment.png"></img></div></p>
+
+<p>为了离线分析我们也在一个独立的数据中心部署了一个Kafka集群，在地理位置上靠近我们的hadoop集群和其他得数据仓库设施。这个kafka实例运行了一组内嵌的consumer从线上数据中心拉取数据。我们然后运行数据加载作业从该备份Kafka集群拉取数据到hadoop和我们的数据仓库，在那里我们对此数据运行多种报表作业和分析流程。我们还使用该Kafka集群做原型实验，可以在原始事件流上运行简单的脚本执行adhoc查询。无需过多的调优，全部处理管道的端对端延迟平均大约10秒，很好地满足了我们的需求。</p>
+
+<p>当前Kafka每天收集数百G的数据，接近十亿条消息，当我们完成了遗留系统得迁移我们预期它还将显著增加。未来将会加入更多种类的消息。当运营团队进行软件或者硬件维护时，会启动或者停止broker，此时负载均衡过程可以自动重定向消息消费。</p>
+
+<p>我们的跟踪系统也包含一个审核组件，验证整个处理管道中的没有发生数据丢失。为了支持该功能，每条消息在产生时包含了时间戳和服务器名。我们要求每个producer定期产生一个监控事件，记录此producer在某固定时间窗口中对每个topic发送了多少条消息。producer以一个独立的topic发布监控事件。consumer可统计它所接受到的某topic的消息数量，与监控事件中的计数相比对就能验证数据的正确性。</p>
+
+<p>通过实现一个特殊的Kafka input format，我们可将数据加到hadoop集群。这允许MapReduce作业直接从Kafka中读取数据。一个MapReduce作业加载原始数据然后进行分组和压缩，使得未来可进行高效处理。broker的无状态性和客户端存储消息offset的方案在此又一次显示出了优势，这使得MapReduce任务管理（允许任务失效和重启）能够以自然的方式处理数据加载，当任务重启时不会产生数据重复和丢失的情况。仅当作业成功完成时，数据和offset才会一起被存储在HDFS中。</p>
+
+<p>我们选择使用Avro作为我们的序列化协议，因为它高效且支持schema演化。对每条消息，我们存储它的Avro schema的id和序列化后的字节载荷。我们可以藉此schema施加契约确保producer和consumer之间的数据兼容性。我们使用一个轻量级的schema注册服务将schema id映射到实际的schema。当consumer获取一条信息时，它在schema注册表中查找并读取schema，然后使用该schema将字节数据解码成对象（对每个schema查找过程只需要执行一次，因为schema是不可变的值）。</p>
+
+<h2 id="5、6-（从略）">5、6 （从略）</h2>
+
+            </div>
+            
+            </div>
+          </div>
+          <div class="pagination">
+              
+              
+                <a class="btn btn-default" href="/2015/06/logistic" class="previous">后一篇</a>
+              
+</div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12 footer navbar-inverse navbar-fixed-bottom">
+       <p class="copyright">
+   &copy;2015 灵元. Powered by <a href="http://jekyllrb.com">Jekyll</a>, theme modified from  <a href="https://github.com/scotte/jekyll-clean">Scott Emmons</a>
+            under
+            <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution.</a> 
+           若非声明皆为原创,转载需注明出处.
+     </p>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</body>
+</html>
+

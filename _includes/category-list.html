@@ -1,0 +1,8 @@
+
+<ul>
+{%for cat in site.categories%}
+<li>
+	<a href="{{baseURL}}/categories/{{cat|first}}"> {{cat |first}}</a>
+</li>
+{%endfor%}
+</ul>
