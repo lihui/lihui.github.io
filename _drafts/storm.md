@@ -5,6 +5,7 @@ author: 灵元
 ---
 
 
+
 ## 1 介绍
 实时流数据处理的应用场景非常广泛，如实时统计分析，在线机器学习等。支撑实时流处理数据的系统通常有如下功能需求：（1）可伸缩性，运营团队可以容易地在系统中地添加、删除计算节点，而不影响正在运行的数据流处理作业（2）可恢复性，又称作“弹性”，在大规模集成系统中，容灾是一个必备的特性（3）可扩展性，也即在该系统中，要能够容易地实现新的处理逻辑（4）易于管理。
 
@@ -17,7 +18,7 @@ author: 灵元
 3. 数据交互，任务节点之间的数据流是如何关联起来的
 4. 并行机制，为了支持大规模数据计算，一个数据流不大可能仅在一台机器上处理，因此流计算框架要能够对数据流进行切分，并且分配到几个并发的计算实例上去
 5. 消息传送保障机制
-6. 窗口
+6. 窗口与状态管理
 6. 失效恢复
 
 本文将从这几个角度介绍几个流行的分布式流计算框架。
@@ -32,6 +33,7 @@ author: 灵元
  考虑叙述整体运行过程，从TopologySubbmiter开始。
 
 ###2.2 数据流模型
+
 在storm中数据流由$&lt;ComponentID,StreamID，TupleSchema &gt;$唯一定义，其中$ComponentID$对应着流计算拓扑图（以后称$topology$）中的一个计算节点。是用户编写的计算组件（以后称为$component$）类在$topology$定义时的一次出现（类比于程序中的静态实体）。 在$topology$中通常一个组件类对应一个 $ComponentID$，但如果该$topology$比较复杂的话也可以对应着多个$ComponentID$，一个$ComponentID$在运行时会产生一个或者多个并发实例（称为$task$），并发度在构造$topology$的时候指定。
 
 $component$可发送一条或者多条数据流，每条数据流由$StreamID$标示。大多数$component$只发送一条数据流，这时在发送数据流中的元素时就不必显式地指明$StreamID$，系统会使用一个默认的名字“default”。
@@ -59,6 +61,7 @@ $component$可发送一条或者多条数据流，每条数据流由$StreamID$�
     void declareOutputFields(OutputFieldsDeclarer declarer);
 }
 </code></pre>
+
     
 1. open方法：在spout实例启动的时候调用，一般在此初始化访问外部资源的链接，将其存储在对象的成员变量中，供后续使用。如果spout需要处理消息失效问题（通过ack，fail方法得到通知），那么还需要建立缓存，保存已经发送过的消息，在得到消息失效的通知时，需要在此发送，在消息得到确认后，则可从缓存中删除。为了降低网络开销提高效率，有些实现会从外部数据源成批地读取数据，因此也会在此建立待发送的数据队列（pending quene）
 2. close方法：负责释放资源
@@ -81,7 +84,7 @@ $component$可发送一条或者多条数据流，每条数据流由$StreamID$�
 </code></pre>
 
 1. prepare方法：在bolt实例启用时调用，此初始化状态，如若要将数据写入到系统外部，还需要初始化访问外部资源的连接等
-2. execute方法：计算的主体方法，若要支持“确保一次”的传送保证，在发送的时候，需要建立anchor,以将本消息与上游消息关联起来，通过这种方式，构建整个确认树。方法是BasicOutputCollector.emit(Tuple anchor,List<Object> values)。如果本条消息是由上游的多条消息构成，那么作为anchor的Tuple就是个Tuple数组：emit(List<Tuple> anchors,List<Object>values)
+2. execute方法：计算的主体方法，若要支持“确保一次”的传送保证，在发送的时候，需要建立anchor,以将本消息与上游消息关联起来，通过这种方式，构建整个确认树。方法是BasicOutputCollector.emit(Tuple anchor,List&lt;Object&gt; values)。如果本条消息是由上游的多条消息构成，那么作为anchor的Tuple就是个Tuple数组：emit(List&lt;Tuple&gt; anchors,List&lt;Object&gt;values)
 3. cleanup方法：storm结束时调用，进行资源清理
 
  
@@ -91,10 +94,13 @@ $component$可发送一条或者多条数据流，每条数据流由$StreamID$�
 
 Topology使用TopologyBuilder进行构造，定义了计算流图的整体拓扑结构，描述task之间数据流关系以及并发度，是一种纯数据的实体。使用代码样例能更好地表达清楚topology构造的要点：
 <pre><code class="java">TopologyBuilder builder=new TopologyBuilder();
-builder.setSpout("kafka",new KafkaSpout());
-builder.setBolt("")
-
+builder.setSpout("sentences",new KafkaSpout(.....));
+builder.setBolt("split", new SplitSentence(), 10)
+        .shuffleGrouping("sentences");
+builder.setBolt("count", new WordCount(), 20)
+        .fieldsGrouping("split", new Fields("word"));
 </code></pre>
+
 
 
 ###2.4 并行机制
@@ -102,6 +108,7 @@ builder.setBolt("")
 ####2.4.1 数据流切分
 
 如同批处理系统一样，流计算的并行性也主要来源于数据并行。因此一个数据流被切分为多个子流分别发送给下游$task$处理。数据流划分方法由group策略指定：
+ 
 <table width="100%" height="100%" class="table table-bordered table-striped table-condensed">
    <tr >
       <td valign="middle">shuffleGrouping</td><td>数据流中的数据元组均匀随机分发给下游组件的各个$task$,这种分组策略不会产生负载失衡的情况。但这种方案不能单独用于依某字段值进行分组统计的功能 </td>
@@ -130,17 +137,66 @@ builder.setBolt("")
       <td>localOrShuffleGrouping</td><td>语义类同shuffleGrouping，但利用了$task$间的局部性进行优化，优先发送给与源task在同一个进程的那些目标$task$</td>
    </tr>
 </table>
+ 
 有必要更进一步叙述parialKeyGrouping的意义。相比shuffleGrouping会将元组分发到任意$task$,fieldsGroup只会将相同的key分发到一个$task$，parialKeyGrouping则会将相同的key发送到两个$task$，该策略的提出是因为有些key值的分布可能极度不均匀，会导致下游有些$task$过载，有些则很空闲。
 
 假设要作基于某个key的分组统计，key有K种不同的值，且有T个$task$。如果使用shuffleGrouping进行部分统计，那么统计所需的内存开销是O(K*T)，fieldsGrouping是O(K)。而使用parialKeyGrouping替代shuffleGrouping做部分统计的话，内存开销仅是fieldsGrouping的两倍，但大大地降低了负载失衡的情况。
 
 ####2.4.2 task数量配置
-TopologyBuilder的setBolt方法有个参数parallelism_hint用来设置组件的并发度,注意这不等于生成的task的数目，而是运行该组件的线程数目，只不过默认线程数目等于task数目罢了。setBolt方法返回的BoltDeclarer对象可以用setNumTasks来设置task数目。
+TopologyBuilder的setBolt方法有个参数parallelism_hint用来设置组件的并发度,注意这不等于生成的task的数目，而是运行该组件的线程数目，只不过默认线程数目等于task数目罢了。task数目可以用setBolt方法返回的BoltDeclarer对象的setNumTasks方法来设置。
 
 ####2.5 消息传送保障机制
+storm支持“最多一次”、“精确一次”两种消息保障，第一种不需多说，因tcp协议不会重复发送消息，因此task发送了消息不管就行了。支持“精确一次”则有些复杂，我们主要讨论它。
+
+与tcp协议类似，“精确一次”传送依赖于ack操作。storm为此引入了一个特别的AckBolt负责跟踪tuple在是否经过topology被正确处理了。一个tuple被正确处理了，当且仅当tuple以及所有依赖于该tuple的新产生的tuple都被正确处理了。tuple以及依赖于它的所有tuple构成了一个DAG图。如在上面提到的词数统计中，spout产生的每一条句子构成一棵树（DAG的特例）：
+<div align="center"><img width="80%" src="/media/storm_tuple_tree.png" /></div>
+ 
+为了跟踪tuple树所有节点是否都正确处理了，一个简单地策略可能会在ackbolt节点中维护这颗树，然后当每一个输出消息成功或者失败时，往树的根方向反向传递成功或者失败的消息，但这种方案所需要消耗的资源显然比较多。
+
+为了高效，storm引入了一种理论上不可靠，但实际上足够可靠的方法。
+
+
+
+    bolt-emit
+    for t in outtasks
+        构造HashMap: anchors-to-ids
+        for Tuple a in  anchors
+            对每个a获取其关联的MessageId的 anchors的id集合，称为root-ids
+            当root-ids里的数目为0，则跳过本次循环
+            随机生成一个64位的edge-id
+            a.updateAckVal(edge-id)  ;异或,这个tuple需要在随后进行collector.ack
+            for root-id in root-ids
+                anchors-to-ids[root-id] ^=edge-id)
+        发送Tuple(worker-context,values,task-id,stream,MessageId(anchors-to-ids))
+
+bolt中要ack接受到的tuple时，调用下面的方法：
+
+    IOutputCollector.ack(tuple):
+    for (root-id,id) in tuple.getMessageId().getAnchorsToIds()
+        发送(root-id,id^tuple.getAckVal())
+
+
+这里root-id是spout在生成原初uple时赋予它的一个64位long型随机数ID，用于在ack过程中唯一标识该消息。与预期的可能不同，用户通过emit传入的MsgId与root-id没有关系。MsgId是用户提供的可能有业务意义的id，这个id将在ack，fail方法中被传回，让spout的编写者以有业务意义的方式来定义tuple，其用途也仅此而已。
+
+这个root-id是整个tuple DAG中的核心标识，所有的衍生tuple都会在MessageId中存有它。当原初tuple从spout发出时，可能会向多个下游blot task发送，对于这样发送的每一个副本，系统都生成一个64位long型随机数来标示，这种标示符称为edge-id。系统将这些edge-id进行异或作为ack_val与root-id,task-id一起发送给acker-bolt。该task-id就是运行本spout的task的32位标识。因此acker-bolt为每一个原初tuple消耗20个字节。
+而给下游bolt task发送的tuple中包含一个叫MessageId的结构，里面是<root-id,edge-id>。
+
+
+衍生tuple可能有多个root-id，因为它的产生可能依赖于多个原初tuple。bolt在emit这种tuple时候提供anchors，即它所依赖的上游tuple列表。系统会提取
+
+
+
+
+
 
 （记着调研并行执行单元增加降低的情况，或者storm不允许运行时动态伸缩？）
 
 ##3 samza
 
 ##4 流计算常用模式
+
+hell
+
+
+
+
